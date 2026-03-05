@@ -1,37 +1,38 @@
 import streamlit as st
 from deep_translator import GoogleTranslator
-from gtts import gTTS
-import os
+import requests
 
-# Configuración de la interfaz
-st.set_page_config(page_title="Mi IA de Inglés", page_icon="🎙️")
-st.title("🎙️ Traductor y Coach de Pronunciación")
-st.markdown("Pega tu texto y yo lo adaptaré al inglés con pronunciación perfecta.")
+# --- CONFIGURACIÓN Y CRÉDITOS ---
+st.set_page_config(page_title="IA de Inglés - Emmanuel", page_icon="🇺🇸")
 
-# 1. Entrada de texto
-texto_usuario = st.text_area("Escribe o pega aquí el texto en español:", placeholder="Ej: Hola, ¿cómo va todo?")
+st.sidebar.title("🚀 Creador")
+st.sidebar.write("**Nombre:** Emmanuel")
+st.sidebar.write("**Email:** samuelcuesta911@gmail.com")
+st.sidebar.markdown("---")
 
-if st.button("Adaptar y Escuchar"):
+# --- INTERFAZ ---
+st.title("🎙️ English Coach Pro")
+texto_usuario = st.text_area("Escribe en español:")
+
+if st.button("Adaptar y Generar Voz Realista"):
     if texto_usuario:
-        # 2. Traducción Adaptativa
-        # Usamos GoogleTranslator pero configurado para ser natural
-        traduccion = GoogleTranslator(source='auto', target='en').translate(texto_usuario)
-        
-        st.subheader("Adaptación al Inglés:")
-        st.success(traduccion)
+        # Traducción
+        traduccion = GoogleTranslator(source='es', target='en').translate(texto_usuario)
+        st.success(f"**Traducción:** {traduccion}")
 
-        # 3. Generar la Voz (TTS)
-        # 'en' es inglés, 'tld=com' usa el acento estándar americano
-        tts = gTTS(text=traduccion, lang='en', tld='com')
-        tts.save("audio.mp3")
+        # Voz Humana (ElevenLabs)
+        # Pega tu clave de la imagen image_902565.png aquí abajo:
+        API_KEY = "sk_0e3d808de424936e3f10b1bf15093c163e512cd54871ec62" 
+        VOICE_ID = "21m00Tcm4TlvDq8ikWAM" # Voz natural de Rachel
+        
+        url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}"
+        headers = {"Accept": "audio/mpeg", "Content-Type": "application/json", "xi-api-key": API_KEY}
+        data = {"text": traduccion, "model_id": "eleven_monolingual_v1", "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}}
 
-        # 4. Reproducir en la interfaz
-        st.subheader("Escucha la pronunciación:")
-        audio_file = open("audio.mp3", "rb")
-        st.audio(audio_file.read(), format="audio/mp3")
-        
-        # Limpieza (opcional)
-        audio_file.close()
-    else:
-        st.warning("Por favor, escribe algo primero.")
-        
+        response = requests.post(url, json=data, headers=headers)
+        if response.status_code == 200:
+            with open("audio.mp3", "wb") as f:
+                f.write(response.content)
+            st.audio("audio.mp3")
+        else:
+            st.error("Revisa tu API Key de ElevenLabs")
