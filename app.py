@@ -4,11 +4,11 @@ import requests
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="IA de Voz - Emmanuel", page_icon="🎙️")
 
-# --- BARRA LATERAL CON CRÉDITOS ---
+# --- BARRA LATERAL ---
 with st.sidebar:
     st.title("⭐ Creador")
-    st.success("Emmanuel") # Tu nombre como creador
-    st.write("Esta IA lee exactamente lo que escribas con una voz humana profesional de ElevenLabs.")
+    st.success("Emmanuel")
+    st.write("Esta IA usa el modelo Multilingual v2 para una voz humana perfecta.")
     st.markdown("---")
     st.caption("© 2026 - Powered by ElevenLabs")
 
@@ -22,10 +22,9 @@ texto_usuario = st.text_area("Escribe tu texto aquí:",
 
 if st.button("📢 Generar Voz"):
     if texto_usuario:
-        with st.spinner("Generando audio realista..."):
-            # Tu Key insertada correctamente
+        with st.spinner("Generando audio ultra-realista..."):
             API_KEY = "sk_0e3d808de424936e3f10b1bf15093c163e512cd54871ec62" 
-            VOICE_ID = "21m00Tcm4TlvDq8ikWAM" # Voz de Rachel (Femenina y natural)
+            VOICE_ID = "21m00Tcm4TlvDq8ikWAM" # Voz de Rachel
             
             url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}"
             headers = {
@@ -33,9 +32,10 @@ if st.button("📢 Generar Voz"):
                 "Content-Type": "application/json",
                 "xi-api-key": API_KEY
             }
+            # CAMBIO AQUÍ: Usamos 'eleven_multilingual_v2' que es el modelo actual
             data = {
                 "text": texto_usuario,
-                "model_id": "eleven_monolingual_v1",
+                "model_id": "eleven_multilingual_v2", 
                 "voice_settings": {
                     "stability": 0.5, 
                     "similarity_boost": 0.8
@@ -48,9 +48,9 @@ if st.button("📢 Generar Voz"):
                     with open("audio.mp3", "wb") as f:
                         f.write(response.content)
                     st.audio("audio.mp3")
-                    st.success("¡Audio generado! Dale al play arriba.")
+                    st.success("¡Audio generado con éxito!")
                 else:
-                    st.error(f"Error de ElevenLabs: {response.text}")
+                    st.error(f"Error: {response.text}")
             except Exception as e:
                 st.error(f"Error técnico: {e}")
     else:
