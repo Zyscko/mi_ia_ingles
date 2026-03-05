@@ -10,30 +10,26 @@ st.set_page_config(page_title="IA de Voz Natural - Emmanuel", page_icon="🎙️
 with st.sidebar:
     st.title("⭐ Creador")
     st.success("Emmanuel")
-    st.write("Esta versión usa voces de Microsoft Edge (Naturales y Gratuitas).")
+    # Cambiamos el texto aburrido por el tuyo:
+    st.warning("Si esto no le sirve pues no moleste crjo") 
     st.markdown("---")
 
 # --- CUERPO PRINCIPAL ---
 st.title("🎙️ Lector de Voz Natural Pro")
 texto_usuario = st.text_area("Escribe lo que quieras que la IA diga:", 
-                            placeholder="Ej: Hello Emmanuel, this voice sounds much more human!", 
-                            height=150)
+                            placeholder="Escribe aquí...", height=150)
 
-# Función para generar el audio (esta parte es técnica pero necesaria)
+# Función para generar el audio
 async def generate_voice(text):
-    communicate = edge_tts.Communicate(text, "en-US-GuyNeural") # Voz natural masculina
+    communicate = edge_tts.Communicate(text, "en-US-GuyNeural")
     await communicate.save("audio.mp3")
 
 if st.button("📢 Generar Voz Natural"):
     if texto_usuario:
-        with st.spinner("Generando audio con acento natural..."):
+        with st.spinner("Generando..."):
             try:
-                # Ejecutamos la generación de voz
                 asyncio.run(generate_voice(texto_usuario))
-                
-                # Reproducimos en la web
                 st.audio("audio.mp3")
-                st.success("¡Listo! Escucha la diferencia en la entonación.")
             except Exception as e:
                 st.error(f"Error técnico: {e}")
     else:
