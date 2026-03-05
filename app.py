@@ -1,56 +1,39 @@
 import streamlit as st
-import requests
+import asyncio
+import edge_tts
+import os
 
-# --- CONFIGURACIÓN DE PÁGINA ---
-st.set_page_config(page_title="IA de Voz - Emmanuel", page_icon="🎙️")
+# --- CONFIGURACIÓN ---
+st.set_page_config(page_title="IA de Voz Natural - Emmanuel", page_icon="🎙️")
 
 # --- BARRA LATERAL ---
 with st.sidebar:
     st.title("⭐ Creador")
     st.success("Emmanuel")
-    st.write("Esta IA usa el modelo Multilingual v2 para una voz humana perfecta.")
+    st.write("Esta versión usa voces de Microsoft Edge (Naturales y Gratuitas).")
     st.markdown("---")
-    st.caption("© 2026 - Powered by ElevenLabs")
 
 # --- CUERPO PRINCIPAL ---
-st.title("🎙️ Lector de Voz Pro")
-st.markdown("##### Escribe lo que quieras y la IA lo dirá con acento y pausas naturales.")
-
-texto_usuario = st.text_area("Escribe tu texto aquí:", 
-                            placeholder="Ej: Hello, my name is Emmanuel and this is my first AI project.", 
+st.title("🎙️ Lector de Voz Natural Pro")
+texto_usuario = st.text_area("Escribe lo que quieras que la IA diga:", 
+                            placeholder="Ej: Hello Emmanuel, this voice sounds much more human!", 
                             height=150)
 
-if st.button("📢 Generar Voz"):
-    if texto_usuario:
-        with st.spinner("Generando audio ultra-realista..."):
-            API_KEY = "sk_0e3d808de424936e3f10b1bf15093c163e512cd54871ec62" 
-            VOICE_ID = "21m00Tcm4TlvDq8ikWAM" # Voz de Rachel
-            
-            url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}"
-            headers = {
-                "Accept": "audio/mpeg",
-                "Content-Type": "application/json",
-                "xi-api-key": API_KEY
-            }
-            # CAMBIO AQUÍ: Usamos 'eleven_multilingual_v2' que es el modelo actual
-            data = {
-                "text": texto_usuario,
-                "model_id": "eleven_multilingual_v2", 
-                "voice_settings": {
-                    "stability": 0.5, 
-                    "similarity_boost": 0.8
-                }
-            }
+# Función para generar el audio (esta parte es técnica pero necesaria)
+async def generate_voice(text):
+    communicate = edge_tts.Communicate(text, "en-US-GuyNeural") # Voz natural masculina
+    await communicate.save("audio.mp3")
 
+if st.button("📢 Generar Voz Natural"):
+    if texto_usuario:
+        with st.spinner("Generando audio con acento natural..."):
             try:
-                response = requests.post(url, json=data, headers=headers)
-                if response.status_code == 200:
-                    with open("audio.mp3", "wb") as f:
-                        f.write(response.content)
-                    st.audio("audio.mp3")
-                    st.success("¡Audio generado con éxito!")
-                else:
-                    st.error(f"Error: {response.text}")
+                # Ejecutamos la generación de voz
+                asyncio.run(generate_voice(texto_usuario))
+                
+                # Reproducimos en la web
+                st.audio("audio.mp3")
+                st.success("¡Listo! Escucha la diferencia en la entonación.")
             except Exception as e:
                 st.error(f"Error técnico: {e}")
     else:
