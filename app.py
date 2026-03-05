@@ -2,37 +2,51 @@ import streamlit as st
 from deep_translator import GoogleTranslator
 import requests
 
-# --- CONFIGURACIÓN Y CRÉDITOS ---
-st.set_page_config(page_title="IA de Inglés - Emmanuel", page_icon="🇺🇸")
+# --- CONFIGURACIÓN DE ESTILO ---
+st.set_page_config(page_title="English Coach Pro", page_icon="🎙️", layout="centered")
 
-st.sidebar.title("🚀 Creador")
-st.sidebar.write("**Nombre:** Emmanuel")
-st.sidebar.write("**Email:** samuelcuesta911@gmail.com")
-st.sidebar.markdown("---")
+# CSS para que se vea más moderno
+st.markdown("""
+    <style>
+    .main { background-color: #f5f7f9; }
+    .stButton>button { width: 100%; border-radius: 20px; height: 3em; background-color: #ff4b4b; color: white; }
+    .stTextArea>div>div>textarea { border-radius: 15px; }
+    </style>
+    """, unsafe_allow_html=True)
 
-# --- INTERFAZ ---
+# --- BARRA LATERAL (Sidebar) ---
+with st.sidebar:
+    st.title("⭐ Panel de Control")
+    st.info("Esta IA adapta tus frases para que suenen naturales en Estados Unidos, no como un traductor de libro.")
+    st.markdown("---")
+    st.write("🚀 **Desarrollado por:**")
+    st.success("Emmanuel") # Solo tu nombre, sin el correo
+    st.caption("Versión 2.0 | 2026")
+
+# --- CUERPO PRINCIPAL ---
+st.image("https://images.unsplash.com/photo-1543165796-5426273ea4d2?auto=format&fit=crop&q=80&w=1000", use_container_width=True)
 st.title("🎙️ English Coach Pro")
-texto_usuario = st.text_area("Escribe en español:")
+st.markdown("##### *Habla como un nativo, no como un robot.*")
 
-if st.button("Adaptar y Generar Voz Realista"):
+# Entrada de texto
+texto_usuario = st.text_area("¿Qué quieres decir en inglés hoy?", 
+                            placeholder="Escribe aquí en español...", height=150)
+
+# Espaciado
+st.write("")
+
+if st.button("✨ ¡Convertir a Voz Realista!"):
     if texto_usuario:
-        # Traducción
-        traduccion = GoogleTranslator(source='es', target='en').translate(texto_usuario)
-        st.success(f"**Traducción:** {traduccion}")
-
-        # Voz Humana (ElevenLabs)
-        # Pega tu clave de la imagen image_902565.png aquí abajo:
-        API_KEY = "sk_0e3d808de424936e3f10b1bf15093c163e512cd54871ec62" 
-        VOICE_ID = "21m00Tcm4TlvDq8ikWAM" # Voz natural de Rachel
+        col1, col2 = st.columns(2)
         
-        url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}"
-        headers = {"Accept": "audio/mpeg", "Content-Type": "application/json", "xi-api-key": API_KEY}
-        data = {"text": traduccion, "model_id": "eleven_monolingual_v1", "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}}
+        with st.spinner("Procesando..."):
+            # 1. Traducción Natural
+            traduccion = GoogleTranslator(source='es', target='en').translate(texto_usuario)
+            
+            with col1:
+                st.markdown("### 📝 Tu frase adaptada:")
+                st.info(traduccion)
 
-        response = requests.post(url, json=data, headers=headers)
-        if response.status_code == 200:
-            with open("audio.mp3", "wb") as f:
-                f.write(response.content)
-            st.audio("audio.mp3")
-        else:
-            st.error("Revisa tu API Key de ElevenLabs")
+            # 2. Voz de ElevenLabs
+            API_KEY = "Tsk_0e3d808de424936e3f10b1bf15093c163e512cd54871ec62" 
+            VOICE_ID = "21m00Tcm4TlvDq8ikWAM"
